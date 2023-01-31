@@ -1,0 +1,9 @@
+﻿@model MfcUfmt.Models.ViewModels.CursoCidadeViewModel
+
+
+<div class=" form-group">
+    <label asp-for="Cursos" class="control-label">Curso/Programa: </label>
+    @Html.DropDownListFor(m =>m.Cursos, new SelectList(Model.Cursos, "NomeCurso", "NomeCurso", null, dataGroupField: "Cidade"), "Selecione o curso",
+        new { @class = "form-control"})
+
+</div>

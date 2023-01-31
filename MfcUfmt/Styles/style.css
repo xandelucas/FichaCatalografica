@@ -1,0 +1,50 @@
+/* ^^^^^^^^ BELOW IS THE CODE FOR THE MENU ^^^^^^^^^^ */
+#stylefour
+{
+    background: url('../Resources/bg_menu.png');
+    position: relative;
+    display: block;
+    height:57px;
+    padding: 4px 0px 4px 8px;   
+    font-size: 11px;
+    font-weight: bold;
+    font-family: Arial,Verdana,Helvitica,sans-serif;
+}
+#stylefour ul
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    width: auto;
+    overflow:hidden;
+     
+}
+#stylefour ul li
+{   
+    display: block; 
+    display:inline;   
+    margin: 0;
+}
+#stylefour ul li a
+{
+    display: block;
+    float: left;
+    color: #666;
+    text-decoration: none;
+}
+#stylefour ul li a:hover, #stylefour ul li a.current
+{
+    color: #1D1D1D;
+}
+
+#stylefour ul li a:active
+{
+    color: #1D1D1D;
+    text-decoration:underline;
+    background: #fff url(Resources/bgON1.gif) no-repeat top right;
+}
+
+
+
+
+/* ^^^^^^^^ ABOVE IS THE CODE FOR THE MENU ^^^^^^^^^^ */

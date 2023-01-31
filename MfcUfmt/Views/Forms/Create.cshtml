@@ -1,0 +1,341 @@
+﻿@using MfcUfmt.Models.Enuns;
+@using MfcUfmt.Models.ViewModels
+@using MfcUfmt.Services
+@using Microsoft.CodeAnalysis.Razor
+@model MfcUfmt.Models.ViewModels.FormViewModel;
+
+@{
+    ViewData["Title"] = "Formulário de Ficha Catalográfica";
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<div>
+    <a asp-action="Ajuda">Ajuda</a>
+</div>
+
+<hr />
+
+<div class="alert-info panel-info">
+    A hora atual é: @DateTime.Now
+</div>
+<div class="row" , style="font-family: Arial ">
+    <div class="col-md-7 panel-default panel-heading text-justify">
+        <form asp-action="Create" method="post">
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Form.Nome" class="control-label"></label>
+                <input asp-for="Form.Nome" class="form-control gerarCodCutter" id="nome" name="nome" required />
+                <span asp-validation-for="Form.Nome" class="text-danger"></span> <em>(ex: João Paulo de)</em>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.SobreNome" class="control-label"></label>
+                <input asp-for="Form.SobreNome" class="form-control gerarCodCutter" id="sobreNome" name="sobreNome" required />
+                <span asp-validation-for="Form.SobreNome" class="text-danger"></span> <em>(ex: Castro)</em>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.Titulo" class="control-label"></label>
+                <input asp-for="Form.Titulo" class="form-control gerarCodCutter" id="tituloTrabalho" name="tituloTrabalho" required />
+                <span asp-validation-for="Form.Titulo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.SubTitulo" class="control-label"></label>
+                <input asp-for="Form.SubTitulo" class="form-control" id ="subTitulo" name ="subTitulo" />
+                <span asp-validation-for="Form.SubTitulo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.CodCutter" class="control-label "></label>
+                @Html.TextBox("model => model.CodCutter", "", new { @class = "form-control", id = "codCutterVal", @name= "codCutterVal", @readonly = true , @required= true})
+                <span asp-validation-for="Form.CodCutter" class="text-danger"></span>
+                <input type="button" id="codCutterButton" value="Gerar" class="submitButton">
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="Form.NomeOrientador" class="control-label"></label>
+                <input asp-for="Form.NomeOrientador" class="form-control" id="nomeOrientador" name="nomeOrientador" required/>
+                <span asp-validation-for="Form.NomeOrientador" class="text-danger"></span> &nbsp;
+                <label>
+                    <input asp-for="Form.Orientadora" id ="isOrientadora" name="isOrientadora"/> @Html.DisplayNameFor(model => model.Form.Orientadora)
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Form.NomeCoorientador" class="control-label"></label>
+                <input asp-for="Form.NomeCoorientador" class="form-control" id="nomeCoOrientador" name ="nomeCoOrientador" required/>
+                <span asp-validation-for="Form.NomeCoorientador" class="text-danger"></span> &nbsp;
+                <label>
+                    <input asp-for="Form.Coorientadora" id="isCoOrientadora" name="isCoOrientadora"/> @Html.DisplayNameFor(model => model.Form.Coorientadora)
+                </label>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="Trabalhos" class="control-label"></label>
+                <div id="selectTrabalho">
+                    @foreach (var type in Model.Trabalhos)
+                    {
+
+                        <label for="@type">@Html.RadioButtonFor(m => m.Trabalhos, type.Id, new { id = "TrabId", @class = "radioTrabalho", @checked = "False" }) @Model.ToFriendlyString(type) </label>
+
+                    }
+                </div>
+            </div>
+            <div class=" form-group" id="cursos">
+                <label asp-for="Cursos" class="control-label">Curso/Programa: </label>
+                @Html.DropDownListFor(m =>m.Cursos, new SelectList(Model.Cursos, "Descricao", "NomeCurso", null, dataGroupField: "Cidade"), "Selecione o curso",
+                    new { @class = "form-control", @id = "CursosCidade", name = "CursosCidade"})
+
+            </div>
+            
+
+            <div class="form-group">
+                <label asp-for="Form.Ano" class="control-label"></label>
+                <input asp-for="Form.Ano" class="form-control" id ="ano" name="ano" required/>
+                <span asp-validation-for="Form.Ano" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PadraoNumFols" class="control-label"></label>
+                <select asp-for="PadraoNumFols" asp-items="Html.GetEnumSelectList<PadraoNumFol>()" class="form-control" id="DivPadraNumFols" name="DivPadraNumFols" required></select><em>(ex: em arábico = 300 f. e em romano e arábico = XXI, 279 f.)</em>
+            </div>
+            
+            <div class="form-group" id="NumFolhaRomano">
+                <label asp-for="Form.NumFolhaRomano" class="control-label"></label>
+                <input asp-for="Form.NumFolhaRomano" class="form-control" id="numFolRom" name="numFolRom" />
+                <span asp-validation-for="Form.NumFolhaRomano" class="text-danger"></span><em>(ex: XXII)</em>
+            </div>
+            <div class="form-group" id="NumFolhaArabico">
+                <label asp-for="Form.NumFolhaArabico" class="control-label"></label>
+                <input asp-for="Form.NumFolhaArabico" class="form-control"  id="numFolArab" name="numFolArab" required/>
+                <span asp-validation-for="Form.NumFolhaArabico" class="text-danger"></span><em>(ex: 300)</em>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.TipoIlustracao" class="control-label"></label>
+                <select asp-for="Ilustracaos" asp-items="Html.GetEnumSelectList<Ilustracao>()" class="form-control" id="ilustracao" name="ilustracao" ></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Bibliografias" class="control-label"></label>
+                <select asp-for="Bibliografias" asp-items="Html.GetEnumSelectList<Bibliografia>()" class="form-control" id="bibliografia" name="bibliografia"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Form.AlturaFolha" class="control-label"></label>
+                @Html.TextBox("m => m.Form.AlturaFolha", "30", new { @class = "form-control", @readonly = true , id= "alturaFolha", name = "alturaFolha"})
+                <span asp-validation-for="Form.AlturaFolha" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fontes" class="control-label"></label>
+                <select asp-for="Fontes" asp-items="Html.GetEnumSelectList<Fonte>()" class="form-control" id="fonteText" name="fonteText"></select>
+                <span asp-validation-for="Fontes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.TamFonte" class="control-label"></label>
+                @Html.DropDownList("TamanhoFonte",null,
+                    new { @class = "form-control" , id = "tamanhoFonte", name = "tamanhoFonte"})
+                <span asp-validation-for="Form.TamFonte" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Form.PalavrasChave" class="control-label"></label>
+                <input asp-for="Form.PalavrasChave" class="form-control" id="txtPalavra"  name="txtPalavra" required/> <br>
+                <input asp-for="Form.PalavrasChave" class="form-control" id="txtPalavra2" name="txtPalavra2"/> <br>
+                <input asp-for="Form.PalavrasChave" class="form-control" id="txtPalavra3" name="txtPalavra3"/> <br>
+                <input asp-for="Form.PalavrasChave" class="form-control" id="txtPalavra4" name="textPalavra4"/> <br>
+                <input asp-for="Form.PalavrasChave" class="form-control" id="txtPalavra5" name="textPalavra5"/>
+                <span asp-validation-for="Form.PalavrasChave" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input asp-action="GerarPdf"  type="submit" value="Gerar Ficha Catalográfica" class="btn btn-default " id="gerarFicha" />
+                <input  type="submit" value="Test 2" class="btn btn-default " id="gerarFicha2" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Ajuda">Ajuda</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            $("#NumFolhaRomano").hide();
+            $("#DivPadraNumFols").change(function() {
+                var tipoPag = $(this).val();
+                if (tipoPag == "1") {
+                    $("#NumFolhaRomano").show('fast');
+                } else {
+                    $("#NumFolhaRomano").hide('fast');
+                }
+            });
+
+            $('#codCutterButton').on('click',
+                function() {
+                    var nome = $("#nome").val();
+                    var sobreNome = $("#sobreNome").val();
+                    var tituloTrabalho = $("#tituloTrabalho").val();
+                    if (nome.trim() === "" || sobreNome.trim() === "" || tituloTrabalho.trim() === "") {
+                        alert("Os campos não podem ser nulos!");
+                    } else {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("GerarCodCutter")',
+                            data: { nome, sobreNome, tituloTrabalho },
+                            success: function(result) {
+                                $("#codCutterVal").val(result);
+                                $("#codCutterVal").html(result);
+                            },
+                            error: function(e) {
+                                console.log(e);
+                            }
+                        });
+                    }
+                });
+
+            $('#selectTrabalho').on('click',
+                function() {
+                    var trabId = $("input[name='Trabalhos']:checked").val();
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("AtualizaCursos")',
+                        data: { trabId },
+                        success: function(result) {
+                            console.log(result);
+                            var len = result.length;
+                            console.log(len);
+                            $("#CursosCidade").empty();
+
+                            for (var i = 0; i < len; i++) {
+                                var id = result[i]['descricao'];
+                                var name = result[i]['nomeCurso'];
+
+                                $("#CursosCidade").append("<option value='" + id + "'>" + name + "</option>");
+                                $('#CursosCidade').trigger("chosen:updated");
+                            }
+                            
+                            
+                        },
+                        error: function(e) {
+                            console.log(e);
+                        }
+                    });
+                });
+            $('#gerarFicha2').on('click',
+                function() {
+                    var nome = $("#nome").val().trim();
+                    var sobreNome = $("#sobreNome").val().trim();
+                    var tituloTrabalho = $("#tituloTrabalho").val().trim();
+                    var subTitulo = $('#subTitulo').val().trim();
+                    var cutter = $('#codCutterVal').val().trim();
+                    var programa = $('#CursosCidade').val().trim();
+                    var nomeOrientador = $('#nomeOrientador').val().trim();
+                    var isOrientadora = $('#isOrientadora').is(':checked');
+                    var nomeCoOrientador = $('#nomeCoOrientador').val().trim();
+                    var isCoOrientadora = $('#isCoOrientadora').is(':checked');
+                    var ano = $('#ano').val().trim();
+                    var paginas = '';
+                    if ($('#numFolRom').val() != '') {
+                        paginas =  $('#numFolRom').val() + " , " +  $('#numFolArab').val();
+                    } else {
+                        paginas = $('#numFolArab').val();
+                    }
+                    var ilustracao = $('#ilustracao').text();
+                    var bibliografia = $('#bibliografia').is(':checked');
+                    var alturaFolha = $('#alturaFolha').val();
+                    if ($('#fonteText').val() != '1') {
+                        var isTimes = true;
+                    } else {
+                        var isTimes = false;
+                    }
+                    var tamanhoFonte = $('#tamanhoFOnte').val();
+
+                    console.log("isOrientadora : ", isOrientadora);
+                    console.log("isCoOrientadora : ", isCoOrientadora);
+                    console.log("bibliografia : ", bibliografia);
+                    console.log("paginas : ", paginas);
+                    console.log("isTimes : ", isTimes);
+                    console.log("nome : ", nome);
+                    console.log("cutter: ", cutter);
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GerarPdf2")' ,
+                        data: {
+                            sobreNome, nome, tituloTrabalho, subTitulo, cutter, programa, nomeOrientador, isOrientadora, nomeCoOrientador,
+                            isCoOrientadora, ano, paginas, ilustracao, bibliografia, alturaFolha, isTimes, tamanhoFonte, txtPalavra, txtPalavra2, txtPalavra3, txtPalavra4, txtPalavra5
+                        },
+                        success: function (data) {
+                            console.log(data);
+
+
+                        },
+                        error: function(e) {
+                            console.log(e);
+                        }
+                    });
+
+                });
+            function GeneratePDF() { 
+
+                var nome = $("#Nome").val().trim();
+                var sobreNome = $("#sobreNome").val().trim();
+                var tituloTrabalho = $("#tituloTrabalho").val().trim();
+                var subTitulo = $('#subTitulo').val().trim();
+                var cutter = $('#codCutterVal').val().trim();
+                var programa = $('#CursosCidade').val().trim();
+                var nomeOrientador = $('#nomeOrientador').val().trim();
+                var isOrientadora = $('#isOrientadora').is(':checked');
+                var nomeCoOrientador = $('#nomeCoOrientador').val().trim();
+                var isCoOrientadora = $('#isCoOrientadora').is(':checked');
+                var ano = $('#ano').val().trim();
+                var paginas = '';
+                if ($('#numFolRom').val() != '') {
+                    paginas =  $('#numFolRom').val() + " , " +  $('#numFolArab').val();
+                } else {
+                    paginas = $('#numFolArab').val();
+                }
+                var ilustracao = $('#ilustracao').text();
+                var bibliografia = $('#bibliografia').is(':checked');
+                var alturaFolha = $('#alturaFolha').val();
+                if ($('#fonteText').val() != '1') {
+                    var isTimes = true;
+                } else {
+                    var isTimes = false;
+                }
+                var tamanhoFonte = $('#tamanhoFOnte').val();
+
+                var spinnerDiv = document.getElementById("spinner"); 
+                spinnerDiv.innerHTML = '<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i >'; 
+ 
+                var refreshIntervalId = window.setInterval(function () { 
+                    $.ajax({ 
+                        type: "Post", 
+                        url: '@Url.Action("GerarPdf", "Forms")', 
+                        data: {
+                            sobreNome, nome, tituloTrabalho, subTitulo, cutter, programa, nomeOrientador, isOrientadora, nomeCoOrientador,
+                            isCoOrientadora, ano, paginas, ilustracao, bibliografia, alturaFolha, isTimes, tamanhoFonte, txtPalavra, txtPalavra2, txtPalavra3, txtPalavra4, txtPalavra5
+                        },
+                        contentType: "application/json; charset=utf-8", 
+                        dataType: "json", 
+                        success: function (response) { 
+                            if (response.responseText == 'True') { 
+                                document.getElementById("spinner").innerHTML = ''; 
+                                window.clearInterval(refreshIntervalId); 
+                            } 
+                        }, 
+                        error: function (response) { 
+                            if (response.responseText == 'True') { 
+                                document.getElementById("spinner").innerHTML = ''; 
+                                window.clearInterval(refreshIntervalId); 
+                            } 
+                        } 
+                    }); 
+                }, 1000); 
+ 
+            } 
+        });
+
+    </script>
+
+}
+
